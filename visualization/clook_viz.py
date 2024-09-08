@@ -99,22 +99,24 @@ class CLOOKElevator(Scene):
             if remaining_requests:
                 lowest_request = min(remaining_requests)
                 
-                # Animate moving from current floor to the lowest request
-                self.play(
-                    elevator_pointer.animate.move_to(floors[lowest_request * 2].get_right() + RIGHT * 0.1),
-                    run_time=1
-                )
-                
-                # Update distance and path
-                total_distance += current_floor - lowest_request
-                path.append(lowest_request)
-                current_floor = lowest_request
-                
-                self.play(
-                    distance_text.animate.become(Text(f"Distance: {total_distance}", font_size=24).to_edge(UR).shift(LEFT)),
-                    path_text.animate.become(Text(f"Path: {path}", font_size=24).next_to(distance_text, DOWN))
-                )
-                self.wait(0.5)
+                # Only append the lowest request if it hasn't been added already
+                if current_floor != lowest_request:
+                    # Animate moving from current floor to the lowest request
+                    self.play(
+                        elevator_pointer.animate.move_to(floors[lowest_request * 2].get_right() + RIGHT * 0.1),
+                        run_time=1
+                    )
+                    
+                    # Update distance and path
+                    total_distance += current_floor - lowest_request
+                    path.append(lowest_request)
+                    current_floor = lowest_request
+                    
+                    self.play(
+                        distance_text.animate.become(Text(f"Distance: {total_distance}", font_size=24).to_edge(UR).shift(LEFT)),
+                        path_text.animate.become(Text(f"Path: {path}", font_size=24).next_to(distance_text, DOWN))
+                    )
+                    self.wait(0.5)
         
         # Calculate average seek time
         avg_seek_time = total_distance / len(requests)

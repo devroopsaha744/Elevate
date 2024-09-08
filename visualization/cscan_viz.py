@@ -69,64 +69,76 @@ class CSCANElevator(Scene):
         # Initialize calculations
         current_floor = initial_position
         total_distance = 0
-        path = [initial_position]
+        path = [initial_position]  # Start with the initial position in the path
         remaining_requests = set(requests)
         
-        while remaining_requests:
-            # Always go to the highest extreme (top floor) first
-            for floor in range(current_floor, total_floors + 1):
-                # Move elevator to each floor, including the top extreme
-                distance = abs(floor - current_floor)
+        # Split requests into above and below initial position
+        above_requests = sorted([r for r in remaining_requests if r > initial_position])
+        below_requests = sorted([r for r in remaining_requests if r < initial_position])
+        
+        # Move to the highest request and top extreme (C-SCAN behavior)
+        if above_requests:
+            for request in above_requests:
+                distance = request - current_floor
                 total_distance += distance
-                path.append(floor)
+                path.append(request)
+                current_floor = request
+                
+                # Animate and update
+                self.play(
+                    distance_text.animate.become(Text(f"Distance: {total_distance}", font_size=24).to_edge(UR).shift(LEFT)),
+                    path_text.animate.become(Text(f"Path: {path}", font_size=24).next_to(distance_text, DOWN)),
+                    move_elevator_to(request)
+                )
+                self.play(request_numbers[requests.index(request)].animate.set_color(PINK))
+                remaining_requests.remove(request)
+                self.wait(0.5)
+            
+            # Move to the top extreme (floor 10)
+            if current_floor < total_floors:
+                total_distance += total_floors - current_floor
+                path.append(total_floors)
+                current_floor = total_floors
                 
                 self.play(
                     distance_text.animate.become(Text(f"Distance: {total_distance}", font_size=24).to_edge(UR).shift(LEFT)),
-                    path_text.animate.become(Text(f"Path: {path}", font_size=24).next_to(distance_text, DOWN))
+                    path_text.animate.become(Text(f"Path: {path}", font_size=24).next_to(distance_text, DOWN)),
+                    move_elevator_to(total_floors)
                 )
-                self.play(move_elevator_to(floor))
-                if floor in remaining_requests:
-                    self.play(request_numbers[requests.index(floor)].animate.set_color(PINK))
-                    remaining_requests.remove(floor)
                 self.wait(0.5)
+        
+        # Move directly to the bottom extreme (floor 0)
+        total_distance += current_floor  # Add distance from current position to floor 0
+        path.append(0)
+        current_floor = 0
+        
+        self.play(
+            elevator_pointer.animate.move_to(floors[0].get_right() + RIGHT * 0.1),
+            run_time=1
+        )
+        
+        self.play(
+            distance_text.animate.become(Text(f"Distance: {total_distance}", font_size=24).to_edge(UR).shift(LEFT)),
+            path_text.animate.become(Text(f"Path: {path}", font_size=24).next_to(distance_text, DOWN))
+        )
+        self.wait(0.5)
+        
+        # Now move upwards again, servicing the below initial position requests
+        if below_requests:
+            for request in below_requests:
+                distance = request - current_floor
+                total_distance += distance
+                path.append(request)
+                current_floor = request
                 
-                current_floor = floor
-            
-            # Move directly to the bottom extreme (lowest floor)
-            self.play(
-                elevator_pointer.animate.move_to(floors[0].get_right() + RIGHT * 0.1),
-                run_time=1
-            )
-            
-            # Update distance and path
-            total_distance += current_floor  # The move from the top to the bottom
-            path.append(0)
-            current_floor = 0
-            
-            self.play(
-                distance_text.animate.become(Text(f"Distance: {total_distance}", font_size=24).to_edge(UR).shift(LEFT)),
-                path_text.animate.become(Text(f"Path: {path}", font_size=24).next_to(distance_text, DOWN))
-            )
-            self.wait(0.5)
-            
-            # Now move upwards again, servicing any remaining requests
-            for floor in range(current_floor, total_floors + 1):
-                if floor in remaining_requests:
-                    # Move elevator to this floor
-                    distance = floor - current_floor
-                    total_distance += distance
-                    path.append(floor)
-                    
-                    self.play(
-                        distance_text.animate.become(Text(f"Distance: {total_distance}", font_size=24).to_edge(UR).shift(LEFT)),
-                        path_text.animate.become(Text(f"Path: {path}", font_size=24).next_to(distance_text, DOWN))
-                    )
-                    self.play(move_elevator_to(floor))
-                    self.play(request_numbers[requests.index(floor)].animate.set_color(PINK))
-                    remaining_requests.remove(floor)
-                    self.wait(0.5)
-                    
-                    current_floor = floor
+                self.play(
+                    distance_text.animate.become(Text(f"Distance: {total_distance}", font_size=24).to_edge(UR).shift(LEFT)),
+                    path_text.animate.become(Text(f"Path: {path}", font_size=24).next_to(distance_text, DOWN)),
+                    move_elevator_to(request)
+                )
+                self.play(request_numbers[requests.index(request)].animate.set_color(PINK))
+                remaining_requests.remove(request)
+                self.wait(0.5)
         
         # Calculate average seek time
         avg_seek_time = total_distance / len(requests)
