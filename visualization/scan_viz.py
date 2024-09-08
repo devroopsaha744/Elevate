@@ -3,30 +3,40 @@ from manim import *
 class SCANElevator(Scene):
     def construct(self):
         # Define the floors and the requests
-        requests = [3, 7, 2, 9]
+        requests = [1, 9, 4, 7, 3, 6]  # Requests
         initial_position = 5  # Starting floor
         direction = 1  # 1 for up, -1 for down
-        total_floors = 10
-        
+        total_floors = 10  # Total number of floors
+
         # Create a vertical array of floors
-        floor_size = 0.8
-        floor_gap = 0.2
-        total_height = total_floors * (floor_size + floor_gap)
-        
+        floor_size = 0.5  # Size of the floor squares
+        floor_gap = 0.1   # Gap between floors
+        total_height = (total_floors + 1) * (floor_size + floor_gap)
+
         # Create the literal array of floors (blue squares)
         floors = VGroup()
-        for i in range(total_floors):
+        for i in range(total_floors + 1):
             floor = Square(side_length=floor_size, color=BLUE)
             floor.move_to(UP * (i * (floor_size + floor_gap) - total_height / 2))
-            floor_label = Text(f"{i}", font_size=24).move_to(floor.get_center())
+            floor_label = Text(f"{i}", font_size=20).move_to(floor.get_center())
             floors.add(floor, floor_label)
+        
+        # Scale and center the floors group
+        floors.scale(0.9)
+        floors.move_to(ORIGIN)
         
         self.add(floors)
         
-        # Create the elevator (yellow square) at the initial position
-        elevator = Square(side_length=floor_size, color=YELLOW)
-        elevator.move_to(UP * (initial_position * (floor_size + floor_gap) - total_height / 2))
-        self.add(elevator)
+        # Create the elevator pointer
+        pointer_base = Triangle(fill_color=YELLOW, fill_opacity=1, stroke_width=0).rotate(90 * DEGREES)
+        pointer_base.scale(0.2)
+        pointer_stick = Line(start=ORIGIN, end=RIGHT * 0.5, color=YELLOW)
+        elevator_pointer = VGroup(pointer_base, pointer_stick)
+        
+        # Position the pointer to the right edge of the initial floor
+        elevator_pointer.move_to(floors[initial_position * 2].get_right() + RIGHT * 0.1)
+        
+        self.add(elevator_pointer)
         
         # Create text boxes for distance and path
         distance_text = Text("Distance: 0", font_size=24).to_edge(UR).shift(LEFT)
@@ -45,10 +55,14 @@ class SCANElevator(Scene):
             request_numbers.add(number)
         self.add(requests_text, request_numbers)
         
-        # Function to animate the elevator moving to a specific floor
-        def move_elevator_to(floor_number, duration=2):
-            target_y = UP * (floor_number * (floor_size + floor_gap) - total_height / 2)
-            return elevator.animate.move_to(target_y)
+        # Display the algorithm name
+        algorithm_text = Text("SCAN Algorithm", font_size=24).to_edge(DL)
+        self.add(algorithm_text)
+        
+        # Function to animate the elevator pointer moving to a specific floor
+        def move_elevator_to(floor_number, duration=0.5):
+            target_position = floors[floor_number * 2].get_right() + RIGHT * 0.1  # Move to the right edge of the floor
+            return elevator_pointer.animate.move_to(target_position)
         
         # Animate the elevator according to the SCAN algorithm
         self.wait(1)
@@ -61,8 +75,8 @@ class SCANElevator(Scene):
         
         while remaining_requests:
             if direction == 1:
-                for floor in range(current_floor, total_floors):
-                    if floor in remaining_requests:
+                for floor in range(current_floor, total_floors + 1):  # Move to the top extreme
+                    if floor in remaining_requests or floor == total_floors:  # Visit top extreme
                         # Move elevator to this floor
                         distance = abs(floor - current_floor)
                         total_distance += distance
@@ -72,20 +86,20 @@ class SCANElevator(Scene):
                             distance_text.animate.become(Text(f"Distance: {total_distance}", font_size=24).to_edge(UR).shift(LEFT)),
                             path_text.animate.become(Text(f"Path: {path}", font_size=24).next_to(distance_text, DOWN))
                         )
-                        self.play(
-                            move_elevator_to(floor),
-                            request_numbers[requests.index(floor)].animate.set_color(PINK)
-                        )
-                        self.wait(1)
+                        self.play(move_elevator_to(floor))
+                        if floor in remaining_requests:
+                            self.play(request_numbers[requests.index(floor)].animate.set_color(PINK))
+                        self.wait(0.5)
                         
-                        remaining_requests.remove(floor)
+                        if floor in remaining_requests:
+                            remaining_requests.remove(floor)
                         current_floor = floor
                 
-                # Reached top, change direction
+                # Reached the top, change direction
                 direction = -1
             else:
-                for floor in range(current_floor, -1, -1):
-                    if floor in remaining_requests:
+                for floor in range(current_floor, -1, -1):  # Move to the bottom extreme
+                    if floor in remaining_requests or floor == 0:  # Visit bottom extreme
                         # Move elevator to this floor
                         distance = abs(floor - current_floor)
                         total_distance += distance
@@ -95,16 +109,16 @@ class SCANElevator(Scene):
                             distance_text.animate.become(Text(f"Distance: {total_distance}", font_size=24).to_edge(UR).shift(LEFT)),
                             path_text.animate.become(Text(f"Path: {path}", font_size=24).next_to(distance_text, DOWN))
                         )
-                        self.play(
-                            move_elevator_to(floor),
-                            request_numbers[requests.index(floor)].animate.set_color(PINK)
-                        )
-                        self.wait(1)
+                        self.play(move_elevator_to(floor))
+                        if floor in remaining_requests:
+                            self.play(request_numbers[requests.index(floor)].animate.set_color(PINK))
+                        self.wait(0.5)
                         
-                        remaining_requests.remove(floor)
+                        if floor in remaining_requests:
+                            remaining_requests.remove(floor)
                         current_floor = floor
                 
-                # Reached bottom, change direction
+                # Reached the bottom, change direction
                 direction = 1
         
         # Calculate average seek time
@@ -118,4 +132,4 @@ class SCANElevator(Scene):
         stats_group.next_to(path_text, DOWN, buff=0.5).align_to(path_text, LEFT)
         
         self.play(Write(stats_group))
-        self.wait(3)
+        self.wait(2)
