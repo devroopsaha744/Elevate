@@ -17,9 +17,9 @@ def SCAN(requests, start, end, initial_position):
     return path, total_distance, avg_seek_time
 
 if __name__ == "__main__":
-    requests = [3, 15, 6, 18, 2, 10, 8, 12]
+    requests = [1, 9, 4, 7, 3, 6]
     start = 0
-    end = 19
+    end = 10
     initial_position = 5
 
     path, total_distance, avg_seek_time = SCAN(requests, start, end, initial_position)
@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     #Results
     '''
-SCAN Path: [5, 6, 8, 10, 12, 15, 18, 19, 3, 2]
-Total Distance: 31
-Average Seek Time: 3.1
+SCAN Path: [5, 6, 7, 9, 10, 4, 3, 1]
+Total Distance: 14
+Average Seek Time: 1.75
     '''

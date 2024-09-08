@@ -13,7 +13,7 @@ def SSTF(requests, initial_position):
     return path, total_distance, avg_seek_time
 
 if __name__ == "__main__":
-    requests = [3, 15, 6, 18, 2, 10, 8, 12]
+    requests = [1, 9, 4, 7, 3, 6]
     initial_position = 5
 
     path, total_distance, avg_seek_time = SSTF(requests, initial_position)
@@ -23,9 +23,9 @@ if __name__ == "__main__":
 
 #Results
 '''
-SSTF Path: [5, 6, 8, 10, 12, 15, 18, 3, 2]
-Total Distance: 29
-Average Seek Time: 3.2222222222222223
+SSTF Path: [5, 4, 3, 1, 6, 7, 9]
+Total Distance: 12
+Average Seek Time: 1.7142857142857142
 '''
         
         

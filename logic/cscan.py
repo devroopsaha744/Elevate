@@ -17,11 +17,11 @@ def CSCAN(requests, start, end, initial_position):
     return path, total_distance, avg_seek_time
 
 if __name__ == "__main__":
-    requests = [3, 15, 6, 18, 2, 10, 8, 12]
+    requests = [1, 9, 4, 7, 3, 6]
     initial_position = 5
     start = 0
-    end = 19
-
+    end = 10
+'''
     path, total_distance, avg_seek_time = CSCAN(requests, start, end, initial_position)
     print("CSCAN Path:", path)
     print("Total Distance:", total_distance)
@@ -29,8 +29,8 @@ if __name__ == "__main__":
 
 
 #Results
-'''
-CSCAN Path: [5, 6, 8, 10, 12, 15, 18, 19, 0, 2, 3]
-Total Distance: 36
-Average Seek Time: 3.272727272727273
+
+CSCAN Path: [5, 6, 7, 9, 10, 0, 1, 3, 4]
+Total Distance: 19
+Average Seek Time: 2.111111111111111
 '''
