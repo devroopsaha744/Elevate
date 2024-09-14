@@ -87,7 +87,7 @@ The average number of floors between requests, provides an efficiency metric for
 
 For a deeper understanding of these algorithms and their real-world implications, check out my Medium article:
 
-[Exploring Elevator Scheduling Algorithms in Operating Systems](https://medium.com/@datafreakai/from-disks-to-elevators-applying-scheduling-algorithms-for-optimal-movement-8784fa0ea9e8)
+[From Disks to Elevators: Applying Scheduling Algorithms for Optimal Movement](https://medium.com/@datafreakai/from-disks-to-elevators-applying-scheduling-algorithms-for-optimal-movement-8784fa0ea9e8)
 
 ## Contributing
 
