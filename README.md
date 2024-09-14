@@ -59,8 +59,8 @@ The average number of floors between requests, provides an efficiency metric for
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/yourusername/elevator-scheduling-visualization.git
-    cd elevator-scheduling-visualization
+    git clone https://github.com/devroopsaha744/Elevate.git
+    cd Elevate
     ```
 
 2. **Analyze the Algorithms**:
